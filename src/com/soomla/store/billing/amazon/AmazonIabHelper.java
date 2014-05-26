@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Soomla Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.soomla.store.billing.amazon;
 
 import android.app.Activity;
@@ -23,12 +39,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * This is an implementation of SOOMLA's IabHelper to create a plugin of Amazon to SOOMLA.
+ *
+ * More docs in parent.
+ */
 public class AmazonIabHelper extends IabHelper {
-    private static final String TAG = "SOOMLA AmazonIabHelper";
-    private String mExtraData;
 
-
+    /**
+     * see parent
+     */
     @Override
     protected void startSetupInner() {
         if (mPurchasingObserver == null) {
@@ -37,27 +57,30 @@ public class AmazonIabHelper extends IabHelper {
         PurchasingManager.registerObserver(mPurchasingObserver);
     }
 
+    /**
+     * see parent
+     */
     @Override
     protected void launchPurchaseFlowInner(Activity act, String sku, String extraData) {
         mExtraData = extraData;
         PurchasingManager.initiatePurchaseRequest(sku);
     }
 
+    /**
+     * see parent
+     */
     @Override
     protected void restorePurchasesAsyncInner() {
-        PurchasingManager.initiatePurchaseUpdatesRequest(getPersistedOffset());
+        PurchasingManager.initiatePurchaseUpdatesRequest(Offset.BEGINNING);
     }
 
+    /**
+     * see parent
+     */
     @Override
     protected void fetchSkusDetailsAsyncInner(List<String> skus) {
         PurchasingManager.initiateItemDataRequest(new HashSet<String>(skus));
     }
-
-    private Offset getPersistedOffset() {
-        return Offset.BEGINNING;
-    }
-
-    private PurchasingObserver mPurchasingObserver;
 
     private class PurchasingObserver extends BasePurchasingObserver {
 
@@ -65,12 +88,20 @@ public class AmazonIabHelper extends IabHelper {
             super(SoomlaApp.getAppContext());
         }
 
+        /**
+         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
+         */
+        @Override
         public void onSdkAvailable(final boolean isSandboxMode) {
             AmazonIabHelper.this.setRvsProductionMode(!isSandboxMode);
 
             PurchasingManager.initiateGetUserIdRequest();
         }
 
+        /**
+         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
+         */
+        @Override
         public void onItemDataResponse(final ItemDataResponse response) {
             switch (response.getItemDataRequestStatus()) {
                 case SUCCESSFUL_WITH_UNAVAILABLE_SKUS:
@@ -104,6 +135,10 @@ public class AmazonIabHelper extends IabHelper {
 
         }
 
+        /**
+         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
+         */
+        @Override
         public void onPurchaseResponse(final PurchaseResponse response) {
             final PurchaseResponse.PurchaseRequestStatus status = response.getPurchaseRequestStatus();
             switch (status) {
@@ -143,7 +178,10 @@ public class AmazonIabHelper extends IabHelper {
         }
 
 
-
+        /**
+         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
+         */
+        @Override
         public void onPurchaseUpdatesResponse(final PurchaseUpdatesResponse response) {
             if (mCurrentUserID != null && !mCurrentUserID.equals(response.getUserId())) {
                 StoreUtils.LogError(TAG, "The updates is not for the current user id.");
@@ -206,6 +244,10 @@ public class AmazonIabHelper extends IabHelper {
             }
         }
 
+        /**
+         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
+         */
+        @Override
         public void onGetUserIdResponse(final GetUserIdResponse response) {
             if (response.getUserIdRequestStatus() ==
                     GetUserIdResponse.GetUserIdRequestStatus.SUCCESSFUL) {
@@ -220,10 +262,20 @@ public class AmazonIabHelper extends IabHelper {
         }
 
 
+        /** Private Members */
+
         private static final String TAG = "SOOMLA AmazonIabHelper PurchasingObserver";
 
         private String mCurrentUserID = null;
         private IabInventory mInventory;
 
     }
+
+
+    /** Private Members */
+
+    private static final String TAG = "SOOMLA AmazonIabHelper";
+
+    private String mExtraData;
+    private PurchasingObserver mPurchasingObserver;
 }

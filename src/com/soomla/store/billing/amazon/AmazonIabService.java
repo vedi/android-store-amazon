@@ -28,52 +28,83 @@ import com.soomla.store.billing.IabSkuDetails;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This is the Amazon plugin implementation of IIabService.
+ *
+ * see parent for more docs.
+ */
 public class AmazonIabService implements IIabService {
 
 
+    /**
+     * see parent
+     */
     @Override
     public void initializeBillingService(final IabCallbacks.IabInitListener iabListener) {
         // Set up helper for the first time, querying and synchronizing inventory
         startIabHelper(new OnIabSetupFinishedListener(iabListener));
     }
 
+    /**
+     * see parent
+     */
     @Override
     public void startIabServiceInBg(IabCallbacks.IabInitListener iabListener) {
         startIabHelper(new OnIabSetupFinishedListener(iabListener));
     }
 
+    /**
+     * see parent
+     */
     @Override
     public void stopIabServiceInBg(IabCallbacks.IabInitListener iabListener) {
         StoreUtils.LogDebug(TAG, "stopIabServiceInBg method is not supported for Amazon IAP.");
     }
 
+    /**
+     * see parent
+     */
     @Override
     public void restorePurchasesAsync(IabCallbacks.OnRestorePurchasesListener restorePurchasesListener) {
         mAmazonIabHelper.restorePurchasesAsync(new RestorePurchasesFinishedListener(restorePurchasesListener));
     }
 
+    /**
+     * see parent
+     */
     @Override
     public void fetchSkusDetailsAsync(List<String> skus, IabCallbacks.OnFetchSkusDetailsListener fetchSkusDetailsListener) {
         mAmazonIabHelper.fetchSkusDetailsAsync(skus, new FetchSkusDetailsFinishedListener(fetchSkusDetailsListener));
     }
 
-
+    /**
+     * see parent
+     */
     @Override
     public boolean isIabServiceInitialized() {
         return (mAmazonIabHelper != null && mAmazonIabHelper.isSetupDone());
     }
 
+    /**
+     * see parent
+     */
     @Override
     public void consume(IabPurchase purchase) throws IabException{
         StoreUtils.LogDebug(TAG, "consume method is not supported for Amazon IAP.");
     }
 
+    /**
+     * see parent
+     */
     @Override
     public void consumeAsync(IabPurchase purchase, final IabCallbacks.OnConsumeListener consumeListener) {
         StoreUtils.LogDebug(TAG, "consumeAsync method is not supported for Amazon IAP.");
         consumeListener.success(purchase);
     }
-    
+
+    /**
+     * see parent
+     */
     @Override
     public void launchPurchaseFlow(String sku,
                                    final IabCallbacks.OnPurchaseListener purchaseListener,
@@ -192,7 +223,9 @@ public class AmazonIabService implements IIabService {
     }
 
 
-
+    /**
+     * Handle Setup processes finished
+     */
     private class OnIabSetupFinishedListener implements IabHelper.OnIabSetupFinishedListener {
 
         private IabCallbacks.IabInitListener mIabInitListener;
@@ -217,6 +250,7 @@ public class AmazonIabService implements IIabService {
         }
     }
 
+    
     /* Private Members */
     private static final String TAG = "SOOMLA AmazonIabService";
     private AmazonIabHelper mAmazonIabHelper;

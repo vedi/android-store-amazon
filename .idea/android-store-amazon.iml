@@ -19,6 +19,15 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
+          <root url="jar://$MODULE_DIR$/libs/in-app-purchasing-1.0.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
           <root url="jar://$MODULE_DIR$/libs/AndroidStore.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -28,7 +37,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/libs/in-app-purchasing-1.0.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/libs/SoomlaAndroidCore.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

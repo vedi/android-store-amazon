@@ -15,7 +15,7 @@
  */
 package com.soomla.store.billing.amazon;
 
-import com.soomla.store.StoreUtils;
+import com.soomla.SoomlaUtils;
 import com.soomla.store.billing.IIabService;
 import com.soomla.store.billing.IabCallbacks;
 import com.soomla.store.billing.IabException;
@@ -58,7 +58,7 @@ public class AmazonIabService implements IIabService {
      */
     @Override
     public void stopIabServiceInBg(IabCallbacks.IabInitListener iabListener) {
-        StoreUtils.LogDebug(TAG, "stopIabServiceInBg method is not supported for Amazon IAP.");
+        SoomlaUtils.LogDebug(TAG, "stopIabServiceInBg method is not supported for Amazon IAP.");
     }
 
     /**
@@ -90,7 +90,7 @@ public class AmazonIabService implements IIabService {
      */
     @Override
     public void consume(IabPurchase purchase) throws IabException{
-        StoreUtils.LogDebug(TAG, "consume method is not supported for Amazon IAP.");
+        SoomlaUtils.LogDebug(TAG, "consume method is not supported for Amazon IAP.");
     }
 
     /**
@@ -98,7 +98,7 @@ public class AmazonIabService implements IIabService {
      */
     @Override
     public void consumeAsync(IabPurchase purchase, final IabCallbacks.OnConsumeListener consumeListener) {
-        StoreUtils.LogDebug(TAG, "consumeAsync method is not supported for Amazon IAP.");
+        SoomlaUtils.LogDebug(TAG, "consumeAsync method is not supported for Amazon IAP.");
         consumeListener.success(purchase);
     }
 
@@ -117,7 +117,7 @@ public class AmazonIabService implements IIabService {
                 /**
                  * Wait to see if the purchase succeeded, then start the consumption process.
                  */
-                StoreUtils.LogDebug(TAG, "IabPurchase finished: " + result + ", purchase: " + purchase);
+                SoomlaUtils.LogDebug(TAG, "IabPurchase finished: " + result + ", purchase: " + purchase);
                 switch (result.getResponse()) {
                     case IabResult.BILLING_RESPONSE_RESULT_OK:
                         purchaseListener.success(purchase);
@@ -147,7 +147,7 @@ public class AmazonIabService implements IIabService {
      */
     private synchronized void startIabHelper(OnIabSetupFinishedListener onIabSetupFinishedListener) {
         if (mAmazonIabHelper == null) {
-            StoreUtils.LogDebug(TAG, "Creating Purchasing Observer.");
+            SoomlaUtils.LogDebug(TAG, "Creating Purchasing Observer.");
             mAmazonIabHelper = new AmazonIabHelper();
         }
 
@@ -168,7 +168,7 @@ public class AmazonIabService implements IIabService {
 
         @Override
         public void onRestorePurchasessFinished(IabResult result, IabInventory inventory) {
-            StoreUtils.LogDebug(TAG, "Restore Purchases succeeded");
+            SoomlaUtils.LogDebug(TAG, "Restore Purchases succeeded");
             if (result.getResponse() == IabResult.BILLING_RESPONSE_RESULT_OK && mRestorePurchasesListener != null) {
                 // fetching owned items
                 List<String> itemSkus = inventory.getAllOwnedSkus(IabHelper.ITEM_TYPE_INAPP);
@@ -180,7 +180,7 @@ public class AmazonIabService implements IIabService {
 
                 this.mRestorePurchasesListener.success(purchases);
             } else {
-                StoreUtils.LogError(TAG, "Wither mRestorePurchasesListener==null OR Restore purchases error: " + result.getMessage());
+                SoomlaUtils.LogError(TAG, "Wither mRestorePurchasesListener==null OR Restore purchases error: " + result.getMessage());
                 if (this.mRestorePurchasesListener != null) this.mRestorePurchasesListener.fail(result.getMessage());
             }
         }
@@ -200,7 +200,7 @@ public class AmazonIabService implements IIabService {
 
         @Override
         public void onFetchSkusDetailsFinished(IabResult result, IabInventory inventory) {
-            StoreUtils.LogDebug(TAG, "Restore Purchases succeeded");
+            SoomlaUtils.LogDebug(TAG, "Restore Purchases succeeded");
             if (result.getResponse() == IabResult.BILLING_RESPONSE_RESULT_OK && mFetchSkusDetailsListener != null) {
 
                 // @lassic (May 1st): actually, here (query finished) it only makes sense to get the details
@@ -216,7 +216,7 @@ public class AmazonIabService implements IIabService {
 
                 this.mFetchSkusDetailsListener.success(skuDetails);
             } else {
-                StoreUtils.LogError(TAG, "Wither mFetchSkusDetailsListener==null OR Fetching details error: " + result.getMessage());
+                SoomlaUtils.LogError(TAG, "Wither mFetchSkusDetailsListener==null OR Fetching details error: " + result.getMessage());
                 if (this.mFetchSkusDetailsListener != null) this.mFetchSkusDetailsListener.fail(result.getMessage());
             }
         }
@@ -241,7 +241,7 @@ public class AmazonIabService implements IIabService {
         @Override
         public void onIabSetupFinished(IabResult result) {
 
-            StoreUtils.LogDebug(TAG, "IAB helper Setup finished.");
+            SoomlaUtils.LogDebug(TAG, "IAB helper Setup finished.");
             if (result.isFailure()) {
                 if (mIabInitListener != null) mIabInitListener.fail(result.getMessage());
                 return;
@@ -250,7 +250,7 @@ public class AmazonIabService implements IIabService {
         }
     }
 
-    
+
     /* Private Members */
     private static final String TAG = "SOOMLA AmazonIabService";
     private AmazonIabHelper mAmazonIabHelper;

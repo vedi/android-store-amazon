@@ -8,57 +8,61 @@
   <property name="module.jdk.home.androidstoreamazon" value="${jdk.home.android}"/>
   <property name="module.jdk.bin.androidstoreamazon" value="${jdk.bin.android}"/>
   <property name="module.jdk.classpath.androidstoreamazon" value="jdk.classpath.android"/>
-  
+
   <property name="compiler.args.androidstoreamazon" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
-  
+
   <property name="androidstoreamazon.output.dir" value="${module.androidstoreamazon.basedir}/out/production/AndroidStoreAmazon"/>
-  
+
   <path id="androidstoreamazon.module.bootclasspath">
     <!-- Paths to be included in compilation bootclasspath -->
   </path>
-  
+
   <path id="androidstoreamazon.module.production.classpath">
     <path refid="${module.jdk.classpath.androidstoreamazon}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
+    <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
     <pathelement location="${basedir}/libs/in-app-purchasing-1.0.3.jar"/>
   </path>
-  
+
   <path id="androidstoreamazon.runtime.production.module.classpath">
     <pathelement location="${androidstoreamazon.output.dir}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
+    <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
     <pathelement location="${basedir}/libs/in-app-purchasing-1.0.3.jar"/>
   </path>
-  
+
   <path id="androidstoreamazon.module.classpath">
     <path refid="${module.jdk.classpath.androidstoreamazon}"/>
     <pathelement location="${androidstoreamazon.output.dir}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
+    <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
     <pathelement location="${basedir}/libs/in-app-purchasing-1.0.3.jar"/>
   </path>
-  
+
   <path id="androidstoreamazon.runtime.module.classpath">
     <pathelement location="${androidstoreamazon.output.dir}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
+    <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
     <pathelement location="${basedir}/libs/in-app-purchasing-1.0.3.jar"/>
   </path>
-  
-  
+
+
   <patternset id="excluded.from.module.androidstoreamazon">
     <patternset refid="ignored.files"/>
   </patternset>
-  
+
   <patternset id="excluded.from.compilation.androidstoreamazon">
     <patternset refid="compiler.excluded"/>
     <patternset refid="excluded.from.module.androidstoreamazon"/>
   </patternset>
-  
+
   <path id="androidstoreamazon.module.sourcepath">
     <dirset dir="${module.androidstoreamazon.basedir}">
       <include name="src"/>
         <include name=".idea/gen/com/android"/>
     </dirset>
   </path>
-  
+
   <target name="config">
 
     <property name="config-target-path" value="${basedir}/src/com/soomla/store/"/>
@@ -70,7 +74,7 @@
       <filter token="CONFIG.LOGGING" value="${logging}"/>
      </filterset>
     </copy>
-  
+
     <!-- Now set it to read-only, as we don't want people accidentally
          editing the wrong one. NOTE: This step is unnecessary, but I do
          it so the developers remember that this is not the original file. -->
@@ -80,7 +84,7 @@
    </target>
 
     <target name="compile.module.androidstoreamazon" depends="compile.module.androidstoreamazon.production" description="Compile module AndroidStoreAmazon"/>
-  
+
   <target name="compile.module.androidstoreamazon.production" description="Compile module AndroidStoreAmazon; production classes" >
     <mkdir dir="${androidstoreamazon.output.dir}"/>
     <javac destdir="${androidstoreamazon.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.androidstoreamazon}/javac">
@@ -90,7 +94,7 @@
       <src refid="androidstoreamazon.module.sourcepath"/>
       <patternset refid="excluded.from.compilation.androidstoreamazon"/>
     </javac>
-    
+
     <copy todir="${androidstoreamazon.output.dir}">
       <fileset dir="${module.androidstoreamazon.basedir}/src">
         <patternset refid="compiler.resources"/>
@@ -99,7 +103,7 @@
       </fileset>
     </copy>
   </target>
-  
+
   <target name="clean.module.androidstoreamazon" description="cleanup module">
     <delete dir="${androidstoreamazon.output.dir}"/>
   </target>

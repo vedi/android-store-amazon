@@ -28,7 +28,7 @@ import com.amazon.inapp.purchasing.PurchaseUpdatesResponse;
 import com.amazon.inapp.purchasing.PurchasingManager;
 import com.amazon.inapp.purchasing.Receipt;
 import com.soomla.store.SoomlaApp;
-import com.soomla.store.StoreUtils;
+import com.soomla.SoomlaUtils;
 import com.soomla.store.billing.IabHelper;
 import com.soomla.store.billing.IabInventory;
 import com.soomla.store.billing.IabPurchase;
@@ -109,7 +109,7 @@ public class AmazonIabHelper extends IabHelper {
                     for (final String s : response.getUnavailableSkus()) {
                         unskus += s + "/";
                     }
-                    StoreUtils.LogError(TAG, "(onItemDataResponse) The following skus were unavailable: " + unskus);
+                    SoomlaUtils.LogError(TAG, "(onItemDataResponse) The following skus were unavailable: " + unskus);
 
                 case SUCCESSFUL:
                     final Map<String, Item> items = response.getItemData();
@@ -155,7 +155,7 @@ public class AmazonIabHelper extends IabHelper {
                     break;
                 case INVALID_SKU:
                     String msg = "The purchase has failed. Invalid sku given.";
-                    StoreUtils.LogError(TAG, msg);
+                    SoomlaUtils.LogError(TAG, msg);
                     IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE, msg);
                     purchaseFailed(result, null);
                     break;
@@ -164,13 +164,13 @@ public class AmazonIabHelper extends IabHelper {
                     purchase = new IabPurchase(ITEM_TYPE_INAPP, mLastOperationSKU, "", response.getRequestId(), 0);
 
                     msg = "The purchase has failed. Entitlement already entitled.";
-                    StoreUtils.LogError(TAG, msg);
+                    SoomlaUtils.LogError(TAG, msg);
                     result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED, msg);
                     purchaseFailed(result, purchase);
                     break;
                 default:
                     msg = "The purchase has failed. No message.";
-                    StoreUtils.LogError(TAG, msg);
+                    SoomlaUtils.LogError(TAG, msg);
                     result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ERROR, msg);
                     purchaseFailed(result, null);
                     break;
@@ -184,7 +184,7 @@ public class AmazonIabHelper extends IabHelper {
         @Override
         public void onPurchaseUpdatesResponse(final PurchaseUpdatesResponse response) {
             if (mCurrentUserID != null && !mCurrentUserID.equals(response.getUserId())) {
-                StoreUtils.LogError(TAG, "The updates is not for the current user id.");
+                SoomlaUtils.LogError(TAG, "The updates is not for the current user id.");
                 IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ERROR,
                             "Couldn't complete restore purchases operation.");
                 AmazonIabHelper.this.restorePurchasesFailed(result);
@@ -219,7 +219,7 @@ public class AmazonIabHelper extends IabHelper {
 
                     final Offset newOffset = response.getOffset();
                     if (response.isMore()) {
-                        StoreUtils.LogDebug(TAG, "Initiating Another Purchase Updates with offset: "
+                        SoomlaUtils.LogDebug(TAG, "Initiating Another Purchase Updates with offset: "
                             + newOffset.toString());
                         PurchasingManager.initiatePurchaseUpdatesRequest(newOffset);
                     } else {
@@ -230,7 +230,7 @@ public class AmazonIabHelper extends IabHelper {
                     break;
 
                 case FAILED:
-                    StoreUtils.LogError(TAG, "There was an error while trying to restore purchases. " +
+                    SoomlaUtils.LogError(TAG, "There was an error while trying to restore purchases. " +
                             "Finishing with those that were accumulated until now.");
                     if (mInventory != null) {
                         AmazonIabHelper.this.restorePurchasesSuccess(mInventory);
@@ -255,7 +255,7 @@ public class AmazonIabHelper extends IabHelper {
                 AmazonIabHelper.this.setupSuccess();
             } else {
                 String msg = "Unable to get userId";
-                StoreUtils.LogError(TAG, msg);
+                SoomlaUtils.LogError(TAG, msg);
                 IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ERROR, msg);
                 AmazonIabHelper.this.setupFailed(result);
             }

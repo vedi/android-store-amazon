@@ -17,16 +17,16 @@
 package com.soomla.store.billing.amazon;
 
 import android.app.Activity;
+import android.text.TextUtils;
 
-import com.amazon.inapp.purchasing.BasePurchasingObserver;
-import com.amazon.inapp.purchasing.GetUserIdResponse;
-import com.amazon.inapp.purchasing.Item;
-import com.amazon.inapp.purchasing.ItemDataResponse;
-import com.amazon.inapp.purchasing.Offset;
-import com.amazon.inapp.purchasing.PurchaseResponse;
-import com.amazon.inapp.purchasing.PurchaseUpdatesResponse;
-import com.amazon.inapp.purchasing.PurchasingManager;
-import com.amazon.inapp.purchasing.Receipt;
+import com.amazon.device.iap.PurchasingListener;
+import com.amazon.device.iap.PurchasingService;
+import com.amazon.device.iap.model.Product;
+import com.amazon.device.iap.model.ProductDataResponse;
+import com.amazon.device.iap.model.PurchaseResponse;
+import com.amazon.device.iap.model.PurchaseUpdatesResponse;
+import com.amazon.device.iap.model.Receipt;
+import com.amazon.device.iap.model.UserDataResponse;
 import com.soomla.SoomlaApp;
 import com.soomla.SoomlaUtils;
 import com.soomla.store.billing.IabHelper;
@@ -54,7 +54,9 @@ public class AmazonIabHelper extends IabHelper {
         if (mPurchasingObserver == null) {
             mPurchasingObserver = new PurchasingObserver();
         }
-        PurchasingManager.registerObserver(mPurchasingObserver);
+        PurchasingService.registerListener(SoomlaApp.getAppContext(), mPurchasingObserver);
+
+        PurchasingService.getUserData();
     }
 
     /**
@@ -63,7 +65,7 @@ public class AmazonIabHelper extends IabHelper {
     @Override
     protected void launchPurchaseFlowInner(Activity act, String sku, String extraData) {
         mExtraData = extraData;
-        PurchasingManager.initiatePurchaseRequest(sku);
+        PurchasingService.purchase(sku);
     }
 
     /**
@@ -71,7 +73,7 @@ public class AmazonIabHelper extends IabHelper {
      */
     @Override
     protected void restorePurchasesAsyncInner() {
-        PurchasingManager.initiatePurchaseUpdatesRequest(Offset.BEGINNING);
+        PurchasingService.getPurchaseUpdates(false);
     }
 
     /**
@@ -79,49 +81,40 @@ public class AmazonIabHelper extends IabHelper {
      */
     @Override
     protected void fetchSkusDetailsAsyncInner(List<String> skus) {
-        PurchasingManager.initiateItemDataRequest(new HashSet<String>(skus));
+        PurchasingService.getProductData(new HashSet<String>(skus));
     }
 
-    private class PurchasingObserver extends BasePurchasingObserver {
-
-        public PurchasingObserver() {
-            super(SoomlaApp.getAppContext());
-        }
+    private class PurchasingObserver implements PurchasingListener {
 
         /**
          * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
          */
         @Override
-        public void onSdkAvailable(final boolean isSandboxMode) {
-            AmazonIabHelper.this.setRvsProductionMode(!isSandboxMode);
+        public void onProductDataResponse(ProductDataResponse productDataResponse) {
 
-            PurchasingManager.initiateGetUserIdRequest();
-        }
-
-        /**
-         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
-         */
-        @Override
-        public void onItemDataResponse(final ItemDataResponse response) {
-            switch (response.getItemDataRequestStatus()) {
-                case SUCCESSFUL_WITH_UNAVAILABLE_SKUS:
-                    String unskus = "";
-                    for (final String s : response.getUnavailableSkus()) {
-                        unskus += s + "/";
-                    }
-                    SoomlaUtils.LogError(TAG, "(onItemDataResponse) The following skus were unavailable: " + unskus);
+            switch (productDataResponse.getRequestStatus()) {
 
                 case SUCCESSFUL:
-                    final Map<String, Item> items = response.getItemData();
-                    IabInventory inventory = new IabInventory();
-                    for (final String key : items.keySet()) {
-                        Item i = items.get(key);
-                        IabSkuDetails skuDetails = new IabSkuDetails(ITEM_TYPE_INAPP,
-                                i.getSku(), i.getPrice(), i.getTitle(), i.getDescription());
-                        inventory.addSkuDetails(skuDetails);
 
-//                        Log.v(TAG, String.format("Item: %s\n Type: %s\n SKU: %s\n Price: %s\n Description: %s\n", i.getTitle(), i.getItemType(), i.getSku(), i.getPrice(), getDescription()));
+                    String unskus = "";
+                    for (final String s : productDataResponse.getUnavailableSkus()) {
+                        unskus += s + "/";
                     }
+                    if (!TextUtils.isEmpty(unskus)) {
+                        SoomlaUtils.LogError(TAG, "(onItemDataResponse) The following skus were unavailable: " + unskus);
+                    }
+
+                    final Map<String, Product> products = productDataResponse.getProductData();
+                    IabInventory inventory = new IabInventory();
+                    for (final String key : products.keySet()) {
+                        Product product = products.get(key);
+                        IabSkuDetails skuDetails = new IabSkuDetails(ITEM_TYPE_INAPP,
+                                product.getSku(), product.getPrice(), product.getTitle(), product.getDescription(), 0, "NO CODE");
+                        inventory.addSkuDetails(skuDetails);
+                        SoomlaUtils.LogDebug(TAG, String.format("Product: %s\n Type: %s\n SKU: %s\n Price: %s\n Description: %s\n",
+                                product.getTitle(), product.getProductType(), product.getSku(), product.getPrice(), product.getDescription()));
+                    }
+
                     AmazonIabHelper.this.fetchSkusDetailsSuccess(inventory);
                     break;
 
@@ -140,15 +133,14 @@ public class AmazonIabHelper extends IabHelper {
          */
         @Override
         public void onPurchaseResponse(final PurchaseResponse response) {
-            final PurchaseResponse.PurchaseRequestStatus status = response.getPurchaseRequestStatus();
-            switch (status) {
+            switch (response.getRequestStatus()) {
                 case SUCCESSFUL:
                     Receipt receipt = response.getReceipt();
 //                Item.ItemType itemType = receipt.getItemType();
                     String sku = receipt.getSku();
-                    String purchaseToken = receipt.getPurchaseToken();
+                    String purchaseToken = receipt.getReceiptId();
 
-                    IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, sku, purchaseToken, response.getRequestId(), 0);
+                    IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, sku, purchaseToken, response.getRequestId().toString(), 0);
                     purchase.setDeveloperPayload(AmazonIabHelper.this.mExtraData);
                     purchaseSucceeded(purchase);
                     AmazonIabHelper.this.mExtraData = "";
@@ -159,11 +151,11 @@ public class AmazonIabHelper extends IabHelper {
                     IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE, msg);
                     purchaseFailed(result, null);
                     break;
-                case ALREADY_ENTITLED:
+                case ALREADY_PURCHASED:
 
-                    purchase = new IabPurchase(ITEM_TYPE_INAPP, mLastOperationSKU, "", response.getRequestId(), 0);
+                    purchase = new IabPurchase(ITEM_TYPE_INAPP, mLastOperationSKU, "", response.getRequestId().toString(), 0);
 
-                    msg = "The purchase has failed. Entitlement already entitled.";
+                    msg = "The purchase has failed. Product already purchased.";
                     SoomlaUtils.LogError(TAG, msg);
                     result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED, msg);
                     purchaseFailed(result, purchase);
@@ -177,13 +169,10 @@ public class AmazonIabHelper extends IabHelper {
             }
         }
 
-
-        /**
-         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
-         */
         @Override
-        public void onPurchaseUpdatesResponse(final PurchaseUpdatesResponse response) {
-            if (mCurrentUserID != null && !mCurrentUserID.equals(response.getUserId())) {
+        public void onPurchaseUpdatesResponse(PurchaseUpdatesResponse purchaseUpdatesResponse) {
+
+            if (mCurrentUserID != null && !mCurrentUserID.equals(purchaseUpdatesResponse.getUserData().getUserId())) {
                 SoomlaUtils.LogError(TAG, "The updates is not for the current user id.");
                 IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ERROR,
                             "Couldn't complete restore purchases operation.");
@@ -191,37 +180,23 @@ public class AmazonIabHelper extends IabHelper {
                 return;
             }
 
-            switch (response.getPurchaseUpdatesRequestStatus()) {
+            switch (purchaseUpdatesResponse.getRequestStatus()) {
                 case SUCCESSFUL:
                     if (mInventory == null) {
                         mInventory = new IabInventory();
                     }
 
-                    // Check for revoked SKUs
-                    for (final String sku : response.getRevokedSkus()) {
+                    // Process receipts
+                    for (final Receipt receipt : purchaseUpdatesResponse.getReceipts()) {
                         IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP,
-                                sku, "",
-                                response.getRequestId(), 2);
+                                receipt.getSku(), "NO TOKEN",
+                                purchaseUpdatesResponse.getRequestId().toString(), 0);
                         mInventory.addPurchase(purchase);
                     }
 
-                    // Process receipts
-                    for (final Receipt receipt : response.getReceipts()) {
-                        switch (receipt.getItemType()) {
-                            case ENTITLED: // Re-entitle the customer
-                                IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP,
-                                        receipt.getSku(), receipt.getPurchaseToken(),
-                                        response.getRequestId(), 0);
-                                mInventory.addPurchase(purchase);
-                                break;
-                        }
-                    }
-
-                    final Offset newOffset = response.getOffset();
-                    if (response.isMore()) {
-                        SoomlaUtils.LogDebug(TAG, "Initiating Another Purchase Updates with offset: "
-                            + newOffset.toString());
-                        PurchasingManager.initiatePurchaseUpdatesRequest(newOffset);
+                    if (purchaseUpdatesResponse.hasMore()) {
+                        SoomlaUtils.LogDebug(TAG, "Initiating Another Purchase Updates");
+                        PurchasingService.getPurchaseUpdates(false);
                     } else {
                         AmazonIabHelper.this.restorePurchasesSuccess(mInventory);
                         mInventory = null;
@@ -244,14 +219,21 @@ public class AmazonIabHelper extends IabHelper {
             }
         }
 
-        /**
-         * see parent (or https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs/quick-start)
-         */
+
+        /** Private Members */
+
+        private static final String TAG = "SOOMLA AmazonIabHelper PurchasingObserver";
+
+        private String mCurrentUserID = null;
+        private IabInventory mInventory;
+
+
+
+
         @Override
-        public void onGetUserIdResponse(final GetUserIdResponse response) {
-            if (response.getUserIdRequestStatus() ==
-                    GetUserIdResponse.GetUserIdRequestStatus.SUCCESSFUL) {
-                mCurrentUserID = response.getUserId();
+        public void onUserDataResponse(UserDataResponse userDataResponse) {
+            if (userDataResponse.getRequestStatus() == UserDataResponse.RequestStatus.SUCCESSFUL) {
+                mCurrentUserID = userDataResponse.getUserData().getUserId();
                 AmazonIabHelper.this.setupSuccess();
             } else {
                 String msg = "Unable to get userId";
@@ -260,14 +242,6 @@ public class AmazonIabHelper extends IabHelper {
                 AmazonIabHelper.this.setupFailed(result);
             }
         }
-
-
-        /** Private Members */
-
-        private static final String TAG = "SOOMLA AmazonIabHelper PurchasingObserver";
-
-        private String mCurrentUserID = null;
-        private IabInventory mInventory;
 
     }
 

@@ -117,7 +117,7 @@ public class AmazonIabHelper extends IabHelper {
                     for (final String key : items.keySet()) {
                         Item i = items.get(key);
                         IabSkuDetails skuDetails = new IabSkuDetails(ITEM_TYPE_INAPP,
-                                i.getSku(), i.getPrice(), i.getTitle(), i.getDescription());
+                                i.getSku(), i.getPrice(), i.getTitle(), i.getDescription(), 0, "");
                         inventory.addSkuDetails(skuDetails);
 
 //                        Log.v(TAG, String.format("Item: %s\n Type: %s\n SKU: %s\n Price: %s\n Description: %s\n", i.getTitle(), i.getItemType(), i.getSku(), i.getPrice(), getDescription()));

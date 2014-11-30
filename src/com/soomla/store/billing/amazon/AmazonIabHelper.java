@@ -26,6 +26,7 @@ import com.amazon.device.iap.model.ProductDataResponse;
 import com.amazon.device.iap.model.PurchaseResponse;
 import com.amazon.device.iap.model.PurchaseUpdatesResponse;
 import com.amazon.device.iap.model.Receipt;
+import com.amazon.device.iap.model.UserData;
 import com.amazon.device.iap.model.UserDataResponse;
 import com.soomla.SoomlaApp;
 import com.soomla.SoomlaUtils;
@@ -108,8 +109,11 @@ public class AmazonIabHelper extends IabHelper {
                     IabInventory inventory = new IabInventory();
                     for (final String key : products.keySet()) {
                         Product product = products.get(key);
+                        String currencyCode = AmazonIabUtils.getCurrencyCode(mCurrentUserData.getMarketplace());
+                        long priceMicros = AmazonIabUtils.getPriceAmountMicros(product.getPrice());
+
                         IabSkuDetails skuDetails = new IabSkuDetails(ITEM_TYPE_INAPP,
-                                product.getSku(), product.getPrice(), product.getTitle(), product.getDescription(), 0, "NO CODE");
+                                product.getSku(), product.getPrice(), product.getTitle(), product.getDescription(), priceMicros, currencyCode);
                         inventory.addSkuDetails(skuDetails);
                         SoomlaUtils.LogDebug(TAG, String.format("Product: %s\n Type: %s\n SKU: %s\n Price: %s\n Description: %s\n",
                                 product.getTitle(), product.getProductType(), product.getSku(), product.getPrice(), product.getDescription()));
@@ -172,7 +176,7 @@ public class AmazonIabHelper extends IabHelper {
         @Override
         public void onPurchaseUpdatesResponse(PurchaseUpdatesResponse purchaseUpdatesResponse) {
 
-            if (mCurrentUserID != null && !mCurrentUserID.equals(purchaseUpdatesResponse.getUserData().getUserId())) {
+            if (mCurrentUserData.getUserId() != null && !mCurrentUserData.getUserId().equals(purchaseUpdatesResponse.getUserData().getUserId())) {
                 SoomlaUtils.LogError(TAG, "The updates is not for the current user id.");
                 IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ERROR,
                             "Couldn't complete restore purchases operation.");
@@ -224,7 +228,7 @@ public class AmazonIabHelper extends IabHelper {
 
         private static final String TAG = "SOOMLA AmazonIabHelper PurchasingObserver";
 
-        private String mCurrentUserID = null;
+        private UserData mCurrentUserData = null;
         private IabInventory mInventory;
 
 
@@ -233,7 +237,7 @@ public class AmazonIabHelper extends IabHelper {
         @Override
         public void onUserDataResponse(UserDataResponse userDataResponse) {
             if (userDataResponse.getRequestStatus() == UserDataResponse.RequestStatus.SUCCESSFUL) {
-                mCurrentUserID = userDataResponse.getUserData().getUserId();
+                mCurrentUserData = userDataResponse.getUserData();
                 AmazonIabHelper.this.setupSuccess();
             } else {
                 String msg = "Unable to get userId";
@@ -242,7 +246,6 @@ public class AmazonIabHelper extends IabHelper {
                 AmazonIabHelper.this.setupFailed(result);
             }
         }
-
     }
 
 

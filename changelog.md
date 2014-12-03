@@ -1,4 +1,4 @@
-### v2.0.0 [view commit logs](https://github.com/soomla/android-store/compare/v1.0.0...v2.0.0)
+### v2.0.0 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v1.0.0...v2.0.0)
 
 *** Migrating from IAP v1.0 to IAP v2.0 ***:
   1. Add `in-app-purchasing-2.0.1.jar` instead of `in-app-purchasing-1.0.3.jar`

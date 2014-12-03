@@ -5,6 +5,8 @@
 
 android-store-amazon is a billing service plugin for android-store.
 
+**December 3rd, 2014**:
+Moving forward to Amazon IAP v2.0! See [changelog](https://github.com/soomla/android-store-amazon/changelog.md)
 
 ## Getting Started
 
@@ -13,14 +15,14 @@ In order to work with this plugin you first need to go over android-store's [Get
 The steps to integrate this billing service are also in android-store's [Selecting Billing Service](https://github.com/soomla/android-store#amazon) but we will also write them here for convenience:
 
 
-1. Add `in-app-purchasing-1.0.3.jar` (from `libs` folder) and `AndroidStoreAmazon.jar` (from `build` folder) to your project.
+1. Add `in-app-purchasing-2.0.1.jar` (from `libs` folder) and `AndroidStoreAmazon.jar` (from `build` folder) to your project.
 
 2. Make the following changes in AndroidManifest.xml:
 
 Add amazon's ResponseReceiver to your `application` element. Also, you need to tell us what plugin you're using so add a meta-data tag for that:
 
   ```xml
-  <receiver android:name = "com.amazon.inapp.purchasing.ResponseReceiver" >
+  <receiver android:name = "com.amazon.device.iap.ResponseReceiver" >
     <intent-filter>
       <action android:name = "com.amazon.inapp.purchasing.NOTIFY"
               android:permission = "com.amazon.inapp.purchasing.Permission.NOTIFY" />

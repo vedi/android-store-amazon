@@ -6,7 +6,7 @@
 android-store-amazon is a billing service plugin for android-store.
 
 **December 3rd, 2014**:
-Moving forward to Amazon IAP v2.0! See [changelog](https://github.com/soomla/android-store-amazon/changelog.md)
+Moving forward to Amazon IAP v2.0! See [changelog](https://github.com/soomla/android-store-amazon/blob/master/changelog.md)
 
 ## Getting Started
 

@@ -21,6 +21,7 @@ import android.text.TextUtils;
 
 import com.amazon.device.iap.PurchasingListener;
 import com.amazon.device.iap.PurchasingService;
+import com.amazon.device.iap.model.FulfillmentResult;
 import com.amazon.device.iap.model.Product;
 import com.amazon.device.iap.model.ProductDataResponse;
 import com.amazon.device.iap.model.PurchaseResponse;
@@ -144,15 +145,35 @@ public class AmazonIabHelper extends IabHelper {
         public void onPurchaseResponse(final PurchaseResponse response) {
             switch (response.getRequestStatus()) {
                 case SUCCESSFUL:
-                    Receipt receipt = response.getReceipt();
-//                Item.ItemType itemType = receipt.getItemType();
-                    String sku = receipt.getSku();
-                    String purchaseToken = receipt.getReceiptId();
+                    boolean fulfilled = false;
+                    try {
+                        Receipt receipt = response.getReceipt();
+//                        Item.ItemType itemType = receipt.getItemType();
+                        String sku = receipt.getSku();
+                        String purchaseToken = receipt.getReceiptId();
 
-                    IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, sku, purchaseToken, response.getRequestId().toString(), 0);
-                    purchase.setDeveloperPayload(AmazonIabHelper.this.mExtraData);
-                    purchaseSucceeded(purchase);
-                    AmazonIabHelper.this.mExtraData = "";
+                        // according to: https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs-v2/faq-for-iap-2.0
+                        // notifyFulfillment must be called on all types of IAPs.
+                        // Calling it here to reduce the chance of failures.
+                        PurchasingService.notifyFulfillment(purchaseToken, FulfillmentResult.FULFILLED);
+                        fulfilled = true;
+
+                        IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, sku, purchaseToken, response.getRequestId().toString(), 0);
+                        purchase.setDeveloperPayload(AmazonIabHelper.this.mExtraData);
+
+                        purchaseSucceeded(purchase);
+
+                        AmazonIabHelper.this.mExtraData = "";
+                    }
+                    catch (Exception e) {
+                        // Make sure to fulfill the purchase if there's a crash
+                        // so the items will not return in restoreTransactions
+                        if (!fulfilled) {
+                            PurchasingService.notifyFulfillment(response.getReceipt().getReceiptId(), FulfillmentResult.FULFILLED);
+                        }
+                        IabResult result = new IabResult(IabResult.BILLING_RESPONSE_RESULT_ERROR, "The purchase has failed. No message.");
+                        purchaseFailed(result, null);
+                    }
                     break;
                 case INVALID_SKU:
                     String msg = "The purchase has failed. Invalid sku given.";
@@ -162,7 +183,7 @@ public class AmazonIabHelper extends IabHelper {
                     break;
                 case ALREADY_PURCHASED:
 
-                    purchase = new IabPurchase(ITEM_TYPE_INAPP, mLastOperationSKU, "", response.getRequestId().toString(), 0);
+                    IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, mLastOperationSKU, "", response.getRequestId().toString(), 0);
 
                     msg = "The purchase has failed. Product already purchased.";
                     SoomlaUtils.LogError(TAG, msg);
@@ -197,6 +218,12 @@ public class AmazonIabHelper extends IabHelper {
 
                     // Process receipts
                     for (final Receipt receipt : purchaseUpdatesResponse.getReceipts()) {
+                        // Canceled purchases still get here but they are
+                        // flagged as canceled
+                        // https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs-v2/migrate-iapv1-apps-to-iapv2
+                        if (receipt.isCanceled()) {
+                            continue;
+                        }
                         IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP,
                                 receipt.getSku(), "NO TOKEN",
                                 purchaseUpdatesResponse.getRequestId().toString(), 0);

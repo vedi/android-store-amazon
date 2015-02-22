@@ -36,6 +36,8 @@ import com.soomla.store.billing.IabInventory;
 import com.soomla.store.billing.IabPurchase;
 import com.soomla.store.billing.IabResult;
 import com.soomla.store.billing.IabSkuDetails;
+import com.soomla.store.data.StoreInfo;
+import com.soomla.store.exceptions.VirtualItemNotFoundException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -224,8 +226,21 @@ public class AmazonIabHelper extends IabHelper {
                         if (receipt.isCanceled()) {
                             continue;
                         }
+
+                        String sku = receipt.getSku();
+                        try {
+                            StoreInfo.getPurchasableItem(sku);
+                            // Product ID is available notify Amazon that
+                            // this purchase is fulfilled if it wasn't before
+                            PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.FULFILLED);
+                        } catch (VirtualItemNotFoundException e) {
+                            // Product ID is no longer available notify Amazon
+                            // that this purchase is unavailable
+                            PurchasingService.notifyFulfillment(receipt.getReceiptId(), FulfillmentResult.UNAVAILABLE);
+                        }
+
                         IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP,
-                                receipt.getSku(), "NO TOKEN",
+                                sku, "NO TOKEN",
                                 purchaseUpdatesResponse.getRequestId().toString(), 0);
                         mInventory.addPurchase(purchase);
                     }

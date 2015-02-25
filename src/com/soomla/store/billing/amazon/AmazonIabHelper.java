@@ -87,6 +87,8 @@ public class AmazonIabHelper extends IabHelper {
     protected void fetchSkusDetailsAsyncInner(List<String> skus) {
         if (skus == null || skus.isEmpty()){
             SoomlaUtils.LogDebug(TAG, "skus is null or empty, nothing to fetch.");
+            // Finish the fetch so it doesn't get stuck
+            AmazonIabHelper.this.fetchSkusDetailsSuccess(new IabInventory());
             return;
         }
 

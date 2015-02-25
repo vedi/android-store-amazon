@@ -1,3 +1,11 @@
+### v2.0.1 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v2.0.0...v2.0.1)
+
+* New Features
+  * Adding missing notifyFulfillment functionality fo compliance with Amazon IAP 2.0
+
+* Fixes
+  * Fetch SKUs operation gets stuck when no skus provided
+
 ### v2.0.0 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v1.0.0...v2.0.0)
 
 *** Migrating from IAP v1.0 to IAP v2.0 ***:

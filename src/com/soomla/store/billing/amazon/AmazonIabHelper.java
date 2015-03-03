@@ -162,7 +162,7 @@ public class AmazonIabHelper extends IabHelper {
                         PurchasingService.notifyFulfillment(purchaseToken, FulfillmentResult.FULFILLED);
                         fulfilled = true;
 
-                        IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, sku, purchaseToken, response.getRequestId().toString(), 0);
+                        IabPurchase purchase = new IabPurchase(ITEM_TYPE_INAPP, sku, purchaseToken, response.getRequestId().toString(), 0, response.getUserData().getUserId());
                         purchase.setDeveloperPayload(AmazonIabHelper.this.mExtraData);
 
                         purchaseSucceeded(purchase);

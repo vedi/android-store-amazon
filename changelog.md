@@ -1,3 +1,8 @@
+### v2.0.2 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v2.0.1...v2.0.2)
+
+* New Features
+  * Pass back User ID for purposes of server-side receipt verification
+
 ### v2.0.1 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v2.0.0...v2.0.1)
 
 * New Features

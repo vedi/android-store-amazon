@@ -24,9 +24,11 @@ import com.soomla.store.billing.IabResult;
 import com.soomla.store.billing.IabInventory;
 import com.soomla.store.billing.IabPurchase;
 import com.soomla.store.billing.IabSkuDetails;
+import com.soomla.store.domain.PurchasableVirtualItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the Amazon plugin implementation of IIabService.
@@ -59,6 +61,21 @@ public class AmazonIabService implements IIabService {
     @Override
     public void stopIabServiceInBg(IabCallbacks.IabInitListener iabListener) {
         SoomlaUtils.LogDebug(TAG, "stopIabServiceInBg method is not supported for Amazon IAP.");
+    }
+
+    @Override
+    public boolean getVerifyPurchases() {
+        return false;
+    }
+
+    @Override
+    public void configVerifyPurchases(Map<String, String> verifyPurchases) {
+        throw new UnsupportedOperationException("Purchase verification is not supported for Amazon");
+    }
+
+    @Override
+    public void verifyPurchase(IabPurchase purchase, PurchasableVirtualItem pvi) {
+        throw new UnsupportedOperationException("Purchase verification is not supported for Amazon");
     }
 
     /**

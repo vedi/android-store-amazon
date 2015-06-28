@@ -1,3 +1,8 @@
+### v2.0.3 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v2.0.2...v2.0.3)
+
+* Changes
+  * Implemented stubs for changes in IIabService
+
 ### v2.0.2 [view commit logs](https://github.com/soomla/android-store-amazon/compare/v2.0.1...v2.0.2)
 
 * New Features

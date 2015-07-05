@@ -63,18 +63,11 @@ public class AmazonIabService implements IIabService {
         SoomlaUtils.LogDebug(TAG, "stopIabServiceInBg method is not supported for Amazon IAP.");
     }
 
+    /**
+     * see parent
+     */
     @Override
-    public boolean getVerifyPurchases() {
-        return false;
-    }
-
-    @Override
-    public void configVerifyPurchases(Map<String, String> verifyPurchases) {
-        throw new UnsupportedOperationException("Purchase verification is not supported for Amazon");
-    }
-
-    @Override
-    public void verifyPurchase(IabPurchase purchase, PurchasableVirtualItem pvi) {
+    public void configVerifyPurchases(Map<String, Object> verifyPurchases) {
         throw new UnsupportedOperationException("Purchase verification is not supported for Amazon");
     }
 

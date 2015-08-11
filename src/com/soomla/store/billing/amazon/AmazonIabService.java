@@ -37,6 +37,7 @@ import java.util.Map;
  */
 public class AmazonIabService implements IIabService {
 
+    public static final String VERSION = "2.0.4";
 
     /**
      * see parent

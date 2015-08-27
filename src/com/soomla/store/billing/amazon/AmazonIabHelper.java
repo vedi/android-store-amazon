@@ -92,7 +92,7 @@ public class AmazonIabHelper extends IabHelper {
             return;
         }
 
-        PurchasingService.getProductData(new HashSet<String>(skus));
+        PurchasingService.getProductData(new HashSet<>(skus));
     }
 
     private class PurchasingObserver implements PurchasingListener {

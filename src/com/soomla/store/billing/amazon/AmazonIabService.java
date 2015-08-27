@@ -20,11 +20,10 @@ import com.soomla.store.billing.IIabService;
 import com.soomla.store.billing.IabCallbacks;
 import com.soomla.store.billing.IabException;
 import com.soomla.store.billing.IabHelper;
-import com.soomla.store.billing.IabResult;
 import com.soomla.store.billing.IabInventory;
 import com.soomla.store.billing.IabPurchase;
+import com.soomla.store.billing.IabResult;
 import com.soomla.store.billing.IabSkuDetails;
-import com.soomla.store.domain.PurchasableVirtualItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,7 +167,7 @@ public class AmazonIabService implements IIabService {
     /**
      * Handle Restore Purchases processes
      */
-    private class RestorePurchasesFinishedListener implements IabHelper.RestorePurchasessFinishedListener {
+    private class RestorePurchasesFinishedListener implements IabHelper.RestorePurchasesFinishedListener {
 
 
         private IabCallbacks.OnRestorePurchasesListener mRestorePurchasesListener;
@@ -178,12 +177,12 @@ public class AmazonIabService implements IIabService {
         }
 
         @Override
-        public void onRestorePurchasessFinished(IabResult result, IabInventory inventory) {
+        public void onRestorePurchasesFinished(IabResult result, IabInventory inventory) {
             SoomlaUtils.LogDebug(TAG, "Restore Purchases succeeded");
             if (result.getResponse() == IabResult.BILLING_RESPONSE_RESULT_OK && mRestorePurchasesListener != null) {
                 // fetching owned items
                 List<String> itemSkus = inventory.getAllOwnedSkus(IabHelper.ITEM_TYPE_INAPP);
-                List<IabPurchase> purchases = new ArrayList<IabPurchase>();
+                List<IabPurchase> purchases = new ArrayList<>();
                 for (String sku : itemSkus) {
                     IabPurchase purchase = inventory.getPurchase(sku);
                     purchases.add(purchase);
@@ -217,7 +216,7 @@ public class AmazonIabService implements IIabService {
                 // @lassic (May 1st): actually, here (query finished) it only makes sense to get the details
                 // of the SKUs we already queried for
                 List<String> skuList = inventory.getAllQueriedSkus(false);
-                List<IabSkuDetails> skuDetails = new ArrayList<IabSkuDetails>();
+                List<IabSkuDetails> skuDetails = new ArrayList<>();
                 for (String sku : skuList) {
                     IabSkuDetails skuDetail = inventory.getSkuDetails(sku);
                     if (skuDetail != null) {

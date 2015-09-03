@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class AmazonIabService implements IIabService {
 
-    public static final String VERSION = "2.0.4";
+    public static final String VERSION = "2.0.5";
 
     /**
      * see parent
@@ -70,6 +70,14 @@ public class AmazonIabService implements IIabService {
     @Override
     public void configVerifyPurchases(Map<String, Object> verifyPurchases) {
         throw new UnsupportedOperationException("Purchase verification is not supported for Amazon");
+    }
+
+    /**
+     * see parent
+     */
+    @Override
+    public boolean shouldVerifyPurchases() {
+        return false;
     }
 
     /**

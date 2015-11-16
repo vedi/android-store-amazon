@@ -3,3 +3,4 @@
 ant -buildfile android-store-amazon.xml -Dsoomla.filename="AndroidStoreAmazon" all
 mkdir -p build/billing-services/amazon
 mv build/*.jar build/billing-services/amazon/
+cp libs/in-app-purchasing-2.0.1.jar build/billing-services/amazon/

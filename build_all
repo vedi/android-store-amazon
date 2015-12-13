@@ -1,3 +1,4 @@
+./download_deps.sh
 #ant -buildfile android-store-amazon.xml -Dlogging="true" -Dsoomla.filename="Soomla_debug" all
 #ant -buildfile android-store-amazon.xml -Dlogging="false" -Dsoomla.filename="Soomla_release" all
 ant -buildfile android-store-amazon.xml -Dsoomla.filename="AndroidStoreAmazon" all

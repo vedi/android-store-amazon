@@ -21,14 +21,14 @@
     <path refid="${module.jdk.classpath.androidstoreamazon}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
     <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
-    <pathelement location="${basedir}/libs/in-app-purchasing-2.0.1.jar"/>
+    <pathelement location="${basedir}/libs/in-app-purchasing-amazon.jar"/>
   </path>
 
   <path id="androidstoreamazon.runtime.production.module.classpath">
     <pathelement location="${androidstoreamazon.output.dir}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
     <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
-    <pathelement location="${basedir}/libs/in-app-purchasing-2.0.1.jar"/>
+    <pathelement location="${basedir}/libs/in-app-purchasing-amazon.jar"/>
   </path>
 
   <path id="androidstoreamazon.module.classpath">
@@ -36,14 +36,14 @@
     <pathelement location="${androidstoreamazon.output.dir}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
     <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
-    <pathelement location="${basedir}/libs/in-app-purchasing-2.0.1.jar"/>
+    <pathelement location="${basedir}/libs/in-app-purchasing-amazon.jar"/>
   </path>
 
   <path id="androidstoreamazon.runtime.module.classpath">
     <pathelement location="${androidstoreamazon.output.dir}"/>
     <pathelement location="${basedir}/libs/AndroidStore.jar"/>
     <pathelement location="${basedir}/libs/SoomlaAndroidCore.jar"/>
-    <pathelement location="${basedir}/libs/in-app-purchasing-2.0.1.jar"/>
+    <pathelement location="${basedir}/libs/in-app-purchasing-amazon.jar"/>
   </path>
 
 

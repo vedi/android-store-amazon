@@ -1,6 +1,5 @@
 package com.soomla.store.billing.amazon;
 
-import com.soomla.Soomla;
 import com.soomla.SoomlaUtils;
 
 import java.util.Currency;
@@ -39,7 +38,7 @@ public class AmazonIabUtils {
      * Gets the price micros from price,
      * For example, if price is "€7.99", return is "7990000".
      *
-     * @param price
+     * @param price string representation of the price
      * @return Price micros amount for the given price string.
      * If price is null or empty, or price has an unsupported format, return 0
      */
